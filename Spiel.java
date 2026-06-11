@@ -1,147 +1,139 @@
 import sas.*;
 import java.awt.Color;
 
-public class Spiel {
+class Spiel
+{
+    View fenster;
+    Rectangle schlaeger;
+    Circle ball;
+    bloecke[][] bloeckeArray;
+    Text punkteAnzeige;
+    int punkte;
 
-    public Spiel() {
-        View view = new View(600, 400, "Atari Breakout");
-        view.setBackgroundColor(Color.BLACK);
+    Spiel()
+    {
+        fenster = new View(600, 400, "Atari Breakout");
+        fenster.setBackgroundColor(Color.black);
 
-        // Score-Anzeige
-        int score = 0;
-        Text scoreText = new Text(10, 20, "Score: 0", Color.WHITE);
-        scoreText.setFontSansSerif(true, 18);
+        punkte = 0;
+        punkteAnzeige = new Text(10, 20, "Punkte: 0", Color.white);
+        punkteAnzeige.setFontSansSerif(true, 18);
 
-        // Paddle
-        final double PADDLE_W = 100;
-        final double PADDLE_H = 12;
-        final double PADDLE_Y = 365;
-        double paddleX = (600 - PADDLE_W) / 2.0;
-        Rectangle paddle = new Rectangle(paddleX, PADDLE_Y, PADDLE_W, PADDLE_H, Color.CYAN);
+        // Schläger – Richtung 90° (Ost) für Links-Rechts-Bewegung
+        schlaeger = new Rectangle(250, 365, 100, 12, Color.cyan);
 
-        // Ball – Startposition in der Mitte
-        final double BALL_R = 8;
-        Circle ball = new Circle(300 - BALL_R, 200 - BALL_R, BALL_R, Color.WHITE);
+        // Ball in der Mitte, zufällige Startrichtung
+        ball = new Circle(292, 192, 8, Color.white);
 
-        // Zufällige Startrichtung (immer nach oben)
-        int dxAbs = Tools.randomNumber(2, 4);
-        int dxSign = (Tools.randomNumber(0, 1) == 0) ? 1 : -1;
-        double dx = dxAbs * dxSign;
+        int dxBetrag = Tools.randomNumber(2, 4);
+        int vorzeichen = (Tools.randomNumber(0, 1) == 0) ? 1 : -1;
+        double dx = dxBetrag * vorzeichen;
         double dy = -4;
 
         // Blöcke: 3 Reihen, 10 Spalten
-        // Reihe 1 (oben, rot)   = 3 Punkte
-        // Reihe 2 (mitte, orange) = 2 Punkte
-        // Reihe 3 (unten, gelb) = 1 Punkt
-        final int COLS = 10;
-        final double BW = 54;
-        final double BH = 20;
-        final double GAP_X = 5;
-        final double GAP_Y = 6;
-        final double START_X = (600 - (COLS * BW + (COLS - 1) * GAP_X)) / 2.0;
-        final double START_Y = 45;
+        // Reihe 1 (rot)    = 3 Punkte
+        // Reihe 2 (orange) = 2 Punkte
+        // Reihe 3 (gelb)   = 1 Punkt
+        int spalten = 10;
+        double bBreite = 54;
+        double bHoehe = 20;
+        double abstandX = 5;
+        double abstandY = 6;
+        double startX = (600 - (spalten * bBreite + (spalten - 1) * abstandX)) / 2.0;
+        double startY = 45;
 
-        Color[] rowColors = { Color.RED, Color.ORANGE, Color.YELLOW };
-        int[] rowPoints  = { 3, 2, 1 };
-
-        bloecke[][] blocks = new bloecke[3][COLS];
-        for (int row = 0; row < 3; row++) {
-            double y = START_Y + row * (BH + GAP_Y);
-            for (int col = 0; col < COLS; col++) {
-                double x = START_X + col * (BW + GAP_X);
-                blocks[row][col] = new bloecke(x, y, BW, BH, rowColors[row], rowPoints[row]);
-            }
+        bloeckeArray = new bloecke[3][spalten];
+        for (int spalte = 0; spalte < spalten; spalte++)
+        {
+            double x = startX + spalte * (bBreite + abstandX);
+            bloeckeArray[0][spalte] = new bloecke(x, startY,                    bBreite, bHoehe, Color.red,    3);
+            bloeckeArray[1][spalte] = new bloecke(x, startY + bHoehe + abstandY, bBreite, bHoehe, Color.orange, 2);
+            bloeckeArray[2][spalte] = new bloecke(x, startY + 2*(bHoehe + abstandY), bBreite, bHoehe, Color.yellow, 1);
         }
 
-        // Spielschleife
-        final double PADDLE_SPEED = 5;
-        boolean running = true;
+        boolean spielLaeuft = true;
 
-        while (running) {
-
-            // --- Paddle bewegen ---
-            if (view.keyLeftPressed()) {
-                double newX = paddle.getShapeX() - PADDLE_SPEED;
-                if (newX < 0) newX = 0;
-                paddle.moveTo(newX, PADDLE_Y);
+        while (spielLaeuft)
+        {
+            // Schläger bewegen (wie Rakete: move(5) = Ost, move(-5) = West)
+            if (fenster.keyLeftPressed() && schlaeger.getShapeX() > 0)
+            {
+                schlaeger.move(-5);
             }
-            if (view.keyRightPressed()) {
-                double newX = paddle.getShapeX() + PADDLE_SPEED;
-                if (newX + PADDLE_W > 600) newX = 600 - PADDLE_W;
-                paddle.moveTo(newX, PADDLE_Y);
+            if (fenster.keyRightPressed() && schlaeger.getShapeX() + 100 < 600)
+            {
+                schlaeger.move(5);
             }
 
-            // --- Ball bewegen ---
+            // Ball bewegen
             ball.move(dx, dy);
 
             double bx = ball.getShapeX();
             double by = ball.getShapeY();
-            double bd = BALL_R * 2;
 
-            // Wand links / rechts
-            if (bx <= 0) {
-                dx = Math.abs(dx);
-            }
-            if (bx + bd >= 600) {
-                dx = -Math.abs(dx);
-            }
-
+            // Wände links / rechts
+            if (bx <= 0 && dx < 0)             dx = -dx;
+            if (bx + 16 >= 600 && dx > 0)      dx = -dx;
             // Decke
-            if (by <= 0) {
-                dy = Math.abs(dy);
-            }
+            if (by <= 0 && dy < 0)              dy = -dy;
 
-            // Paddle-Kollision (nur wenn Ball sich nach unten bewegt)
-            if (dy > 0 && ball.intersects(paddle)) {
-                double hitPos = (ball.getCenterX() - paddle.getShapeX()) / PADDLE_W;
-                dx = (hitPos - 0.5) * 8;
-                if (Math.abs(dx) < 0.5) dx = (dx >= 0) ? 0.5 : -0.5;
-                dy = -Math.abs(dy);
+            // Schläger-Kollision (nur wenn Ball nach unten fliegt)
+            if (dy > 0 && ball.intersects(schlaeger))
+            {
+                double treffPos = (ball.getCenterX() - schlaeger.getShapeX()) / 100.0;
+                dx = (treffPos - 0.5) * 8;
+                dy = -dy;
             }
 
             // Block-Kollisionen
-            boolean hitBlock = false;
-            for (int row = 0; row < 3 && !hitBlock; row++) {
-                for (int col = 0; col < COLS && !hitBlock; col++) {
-                    if (blocks[row][col].intersects(ball)) {
-                        score += blocks[row][col].getValue();
-                        blocks[row][col].hit();
-                        scoreText.setText("Score: " + score);
+            boolean blockGetroffen = false;
+            for (int reihe = 0; reihe < 3 && !blockGetroffen; reihe++)
+            {
+                for (int spalte = 0; spalte < spalten && !blockGetroffen; spalte++)
+                {
+                    if (bloeckeArray[reihe][spalte].trifft(ball))
+                    {
+                        punkte += bloeckeArray[reihe][spalte].gibWert();
+                        bloeckeArray[reihe][spalte].treffer();
+                        punkteAnzeige.setText("Punkte: " + punkte);
                         dy = -dy;
-                        hitBlock = true;
+                        blockGetroffen = true;
                     }
                 }
             }
 
             // Ball unten raus → Game Over
-            if (ball.getShapeY() > 400) {
-                running = false;
+            if (ball.getShapeY() > 400)
+            {
+                spielLaeuft = false;
                 ball.setHidden(true);
-                Text gameOver = new Text(95, 195, "Game Over! Score: " + score, Color.RED);
-                gameOver.setFontSansSerif(true, 28);
+                Text gameOver = new Text(80, 195, "Game Over! Punkte: " + punkte, Color.red);
+                gameOver.setFontMonospaced(true, 28);
             }
 
             // Alle Blöcke weg → Gewonnen
-            boolean allCleared = true;
-            outerLoop:
-            for (int row = 0; row < 3; row++) {
-                for (int col = 0; col < COLS; col++) {
-                    if (blocks[row][col].isActive()) {
-                        allCleared = false;
-                        break outerLoop;
+            boolean alleWeg = true;
+            pruefen:
+            for (int reihe = 0; reihe < 3; reihe++)
+            {
+                for (int spalte = 0; spalte < spalten; spalte++)
+                {
+                    if (bloeckeArray[reihe][spalte].istAktiv())
+                    {
+                        alleWeg = false;
+                        break pruefen;
                     }
                 }
             }
-            if (allCleared) {
-                running = false;
+            if (alleWeg)
+            {
+                spielLaeuft = false;
                 ball.setHidden(true);
-                Text win = new Text(155, 195, "You Win! Score: " + score, Color.GREEN);
-                win.setFontSansSerif(true, 28);
+                Text gewonnen = new Text(155, 195, "Gewonnen! Punkte: " + punkte, Color.green);
+                gewonnen.setFontMonospaced(true, 28);
             }
 
-            try {
-                Thread.sleep(16);
-            } catch (InterruptedException e) {}
+            fenster.wait(10);
         }
     }
 }
