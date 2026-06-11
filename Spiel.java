@@ -6,7 +6,9 @@ class Spiel
     View fenster;
     Rectangle schlaeger;
     Circle ball;
-    bloecke[][] bloeckeArray;
+    bloecke[] reihe1;
+    bloecke[] reihe2;
+    bloecke[] reihe3;
     Text punkteAnzeige;
     Text ergebnisText;
     Text hinweisText;
@@ -25,17 +27,17 @@ class Spiel
         double bBreite = 54;
         double bHoehe = 20;
         double abstandX = 5;
-        double abstandY = 6;
         double startX = (600 - (spalten * bBreite + (spalten - 1) * abstandX)) / 2.0;
-        double startY = 45;
 
-        bloeckeArray = new bloecke[3][spalten];
-        for (int spalte = 0; spalte < spalten; spalte++)
+        reihe1 = new bloecke[spalten];
+        reihe2 = new bloecke[spalten];
+        reihe3 = new bloecke[spalten];
+        for (int i = 0; i < spalten; i++)
         {
-            double x = startX + spalte * (bBreite + abstandX);
-            bloeckeArray[0][spalte] = new bloecke(x, startY,                         bBreite, bHoehe, Color.red,    3);
-            bloeckeArray[1][spalte] = new bloecke(x, startY + bHoehe + abstandY,     bBreite, bHoehe, Color.orange, 2);
-            bloeckeArray[2][spalte] = new bloecke(x, startY + 2*(bHoehe + abstandY), bBreite, bHoehe, Color.yellow, 1);
+            double x = startX + i * (bBreite + abstandX);
+            reihe1[i] = new bloecke(x, 45, bBreite, bHoehe, Color.red,    3);
+            reihe2[i] = new bloecke(x, 71, bBreite, bHoehe, Color.orange, 2);
+            reihe3[i] = new bloecke(x, 97, bBreite, bHoehe, Color.yellow, 1);
         }
 
         punkte = 0;
@@ -98,20 +100,14 @@ class Spiel
                 }
 
                 boolean blockGetroffen = false;
-                for (int reihe = 0; reihe < 3 && !blockGetroffen; reihe++)
+                for (int i = 0; i < spalten && !blockGetroffen; i++)
                 {
-                    for (int spalte = 0; spalte < spalten && !blockGetroffen; spalte++)
-                    {
-                        if (bloeckeArray[reihe][spalte].trifft(ball))
-                        {
-                            punkte += bloeckeArray[reihe][spalte].gibWert();
-                            bloeckeArray[reihe][spalte].treffer();
-                            punkteAnzeige.setText("Punkte: " + punkte);
-                            dy = -dy;
-                            blockGetroffen = true;
-                        }
-                    }
+                    if (reihe1[i].trifft(ball)) { punkte += reihe1[i].gibWert(); reihe1[i].treffer(); dy = -dy; blockGetroffen = true; }
+                    else if (reihe2[i].trifft(ball)) { punkte += reihe2[i].gibWert(); reihe2[i].treffer(); dy = -dy; blockGetroffen = true; }
+                    else if (reihe3[i].trifft(ball)) { punkte += reihe3[i].gibWert(); reihe3[i].treffer(); dy = -dy; blockGetroffen = true; }
                 }
+                if (blockGetroffen)
+                    punkteAnzeige.setText("Punkte: " + punkte);
 
                 if (ball.getShapeY() > 400)
                 {
@@ -124,17 +120,10 @@ class Spiel
                 }
 
                 boolean alleWeg = true;
-                pruefen:
-                for (int reihe = 0; reihe < 3; reihe++)
+                for (int i = 0; i < spalten; i++)
                 {
-                    for (int spalte = 0; spalte < spalten; spalte++)
-                    {
-                        if (bloeckeArray[reihe][spalte].istAktiv())
-                        {
-                            alleWeg = false;
-                            break pruefen;
-                        }
-                    }
+                    if (reihe1[i].istAktiv() || reihe2[i].istAktiv() || reihe3[i].istAktiv())
+                        alleWeg = false;
                 }
                 if (alleWeg)
                 {
@@ -160,10 +149,11 @@ class Spiel
             schlaeger.moveTo(250, 365);
             punkte = 0;
             punkteAnzeige.setText("Punkte: 0");
-            for (int reihe = 0; reihe < 3; reihe++)
+            for (int i = 0; i < spalten; i++)
             {
-                for (int spalte = 0; spalte < spalten; spalte++)
-                    bloeckeArray[reihe][spalte].zuruecksetzen();
+                reihe1[i].zuruecksetzen();
+                reihe2[i].zuruecksetzen();
+                reihe3[i].zuruecksetzen();
             }
         }
     }
