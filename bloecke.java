@@ -14,9 +14,9 @@ public class bloecke
         aktiv = true;
     }
 
-    boolean trifft(Shapes pForm)
+    boolean trifft(Circle pBall)
     {
-        return aktiv && rechteck.intersects(pForm);
+        return aktiv && rechteck.intersects(pBall);
     }
 
     int gibWert()
