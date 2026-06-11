@@ -30,6 +30,12 @@ public class bloecke
         rechteck.setHidden(true);
     }
 
+    void zuruecksetzen()
+    {
+        aktiv = true;
+        rechteck.setHidden(false);
+    }
+
     boolean istAktiv()
     {
         return aktiv;
