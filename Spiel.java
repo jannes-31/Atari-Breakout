@@ -18,13 +18,9 @@ class Spiel
         fenster = new View(600, 400, "Atari Breakout");
         fenster.setBackgroundColor(Color.black);
 
-        // Schläger
         schlaeger = new Rectangle(250, 365, 100, 12, Color.cyan);
-
-        // Ball in der Mitte
         ball = new Circle(292, 192, 8, Color.white);
 
-        // Blöcke: 3 Reihen, 10 Spalten
         int spalten = 10;
         double bBreite = 54;
         double bHoehe = 20;
@@ -42,7 +38,6 @@ class Spiel
             bloeckeArray[2][spalte] = new bloecke(x, startY + 2*(bHoehe + abstandY), bBreite, bHoehe, Color.yellow, 1);
         }
 
-        // Anzeigetexte
         punkte = 0;
         punkteAnzeige = new Text(10, 20, "Punkte: 0", Color.white);
         punkteAnzeige.setFontSansSerif(true, 18);
@@ -58,7 +53,6 @@ class Spiel
         countdownText = new Text(262, 140, "3", Color.white);
         countdownText.setFontMonospaced(true, 80);
 
-        // Hauptschleife mit Neustart
         while (true)
         {
             // Countdown
@@ -73,7 +67,6 @@ class Spiel
             fenster.wait(600);
             countdownText.setHidden(true);
 
-            // Zufällige Startrichtung (immer nach oben)
             int dxBetrag = Tools.randomNumber(2, 4);
             int vorzeichen = (Tools.randomNumber(0, 1) == 0) ? 1 : -1;
             double dx = dxBetrag * vorzeichen;
@@ -83,25 +76,20 @@ class Spiel
 
             while (spielLaeuft)
             {
-                // Schläger bewegen
                 if (fenster.keyLeftPressed() && schlaeger.getShapeX() > 0)
                     schlaeger.move(-5);
                 if (fenster.keyRightPressed() && schlaeger.getShapeX() + 100 < 600)
                     schlaeger.move(5);
 
-                // Ball bewegen
                 ball.move(dx, dy);
 
                 double bx = ball.getShapeX();
                 double by = ball.getShapeY();
 
-                // Wände links / rechts
                 if (bx <= 0 && dx < 0)        dx = -dx;
                 if (bx + 16 >= 600 && dx > 0) dx = -dx;
-                // Decke
                 if (by <= 0 && dy < 0)         dy = -dy;
 
-                // Schläger-Kollision
                 if (dy > 0 && ball.intersects(schlaeger))
                 {
                     double treffPos = (ball.getCenterX() - schlaeger.getShapeX()) / 100.0;
@@ -109,7 +97,6 @@ class Spiel
                     dy = -dy;
                 }
 
-                // Block-Kollisionen
                 boolean blockGetroffen = false;
                 for (int reihe = 0; reihe < 3 && !blockGetroffen; reihe++)
                 {
@@ -126,7 +113,6 @@ class Spiel
                     }
                 }
 
-                // Ball unten raus → Game Over
                 if (ball.getShapeY() > 400)
                 {
                     spielLaeuft = false;
@@ -137,7 +123,6 @@ class Spiel
                     hinweisText.setHidden(false);
                 }
 
-                // Alle Blöcke weg → Gewonnen
                 boolean alleWeg = true;
                 pruefen:
                 for (int reihe = 0; reihe < 3; reihe++)
@@ -164,11 +149,10 @@ class Spiel
                 fenster.wait(10);
             }
 
-            // Auf Enter warten
             while (!fenster.keyEnterPressed())
                 fenster.wait(10);
 
-            // Alles zurücksetzen
+            // Neustart
             ergebnisText.setHidden(true);
             hinweisText.setHidden(true);
             ball.setHidden(false);
