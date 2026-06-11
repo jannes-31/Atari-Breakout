@@ -1,32 +1,37 @@
 import sas.*;
 import java.awt.Color;
 
-public class bloecke {
+public class bloecke
+{
+    Rectangle rechteck;
+    int wert;
+    boolean aktiv;
 
-    private Rectangle rect;
-    private int value;
-    private boolean active;
-
-    public bloecke(double x, double y, double width, double height, Color color, int value) {
-        this.rect = new Rectangle(x, y, width, height, color);
-        this.value = value;
-        this.active = true;
+    bloecke(double pX, double pY, double pBreite, double pHoehe, Color pFarbe, int pWert)
+    {
+        rechteck = new Rectangle(pX, pY, pBreite, pHoehe, pFarbe);
+        wert = pWert;
+        aktiv = true;
     }
 
-    public boolean intersects(Shapes shape) {
-        return active && rect.intersects(shape);
+    boolean trifft(Shapes pForm)
+    {
+        return aktiv && rechteck.intersects(pForm);
     }
 
-    public int getValue() {
-        return value;
+    int gibWert()
+    {
+        return wert;
     }
 
-    public void hit() {
-        active = false;
-        rect.setHidden(true);
+    void treffer()
+    {
+        aktiv = false;
+        rechteck.setHidden(true);
     }
 
-    public boolean isActive() {
-        return active;
+    boolean istAktiv()
+    {
+        return aktiv;
     }
 }
