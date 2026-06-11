@@ -7,10 +7,8 @@ class Spiel
     Rectangle schlaeger;
     Circle ball;
     bloecke[][] bloeckeArray;
-    Text punkteAnzeige;
-    Text ergebnisText;
-    Text hinweisText;
-    Text countdownText;
+    Text punkteAnzeige,ergebnis,hinweis,countdown;
+    
     int punkte;
 
     Spiel()
@@ -42,44 +40,44 @@ class Spiel
         punkteAnzeige = new Text(10, 20, "Punkte: 0", Color.white);
         punkteAnzeige.setFontSansSerif(true, 18);
 
-        ergebnisText = new Text(60, 185, "", Color.red);
-        ergebnisText.setFontMonospaced(true, 26);
-        ergebnisText.setHidden(true);
+        ergebnis = new Text(60, 185, "", Color.red);
+        ergebnis.setFontMonospaced(true, 26);
+        ergebnis.setHidden(true);
 
-        hinweisText = new Text(175, 230, "Enter = Neustart", Color.white);
-        hinweisText.setFontSansSerif(false, 20);
-        hinweisText.setHidden(true);
+        hinweis = new Text(175, 230, "Enter = Neustart", Color.white);
+        hinweis.setFontSansSerif(false, 20);
+        hinweis.setHidden(true);
 
-        countdownText = new Text(262, 140, "3", Color.white);
-        countdownText.setFontMonospaced(true, 80);
+        countdown = new Text(262, 140, "3", Color.white);
+        countdown.setFontMonospaced(true, 80);
 
         while (true)
         {
             // Countdown
-            countdownText.setText("3");
-            countdownText.setHidden(false);
+            countdown.setText("3");
+            countdown.setHidden(false);
             fenster.wait(1000);
-            countdownText.setText("2");
+            countdown.setText("2");
             fenster.wait(1000);
-            countdownText.setText("1");
+            countdown.setText("1");
             fenster.wait(1000);
-            countdownText.setText("Los!");
+            countdown.setText("Los!");
             fenster.wait(600);
-            countdownText.setHidden(true);
+            countdown.setHidden(true);
 
             int dxBetrag = Tools.randomNumber(2, 4);
             int vorzeichen = (Tools.randomNumber(0, 1) == 0) ? 1 : -1;
             double dx = dxBetrag * vorzeichen;
             double dy = -4;
 
-            boolean spielLaeuft = true;
+            boolean gameOver = false;
 
-            while (spielLaeuft)
+            while (!gameOver)
             {
                 if (fenster.keyLeftPressed() && schlaeger.getShapeX() > 0)
-                    schlaeger.move(-5);
+                    schlaeger.move(-7);
                 if (fenster.keyRightPressed() && schlaeger.getShapeX() + 100 < 600)
-                    schlaeger.move(5);
+                    schlaeger.move(7);
 
                 ball.move(dx, dy);
 
@@ -115,12 +113,12 @@ class Spiel
 
                 if (ball.getShapeY() > 400)
                 {
-                    spielLaeuft = false;
+                    gameOver = true;
                     ball.setHidden(true);
-                    ergebnisText.setFontColor(Color.red);
-                    ergebnisText.setText("Game Over!  Punkte: " + punkte);
-                    ergebnisText.setHidden(false);
-                    hinweisText.setHidden(false);
+                    ergebnis.setFontColor(Color.red);
+                    ergebnis.setText("Game Over!  Punkte: " + punkte);
+                    ergebnis.setHidden(false);
+                    hinweis.setHidden(false);
                 }
 
                 boolean alleWeg = true;
@@ -138,12 +136,12 @@ class Spiel
                 }
                 if (alleWeg)
                 {
-                    spielLaeuft = false;
+                    gameOver = true;
                     ball.setHidden(true);
-                    ergebnisText.setFontColor(Color.green);
-                    ergebnisText.setText("Gewonnen!  Punkte: " + punkte);
-                    ergebnisText.setHidden(false);
-                    hinweisText.setHidden(false);
+                    ergebnis.setFontColor(Color.green);
+                    ergebnis.setText("Gewonnen!  Punkte: " + punkte);
+                    ergebnis.setHidden(false);
+                    hinweis.setHidden(false);
                 }
 
                 fenster.wait(10);
@@ -153,8 +151,8 @@ class Spiel
                 fenster.wait(10);
 
             // Neustart
-            ergebnisText.setHidden(true);
-            hinweisText.setHidden(true);
+            ergebnis.setHidden(true);
+            hinweis.setHidden(true);
             ball.setHidden(false);
             ball.moveTo(292, 192);
             schlaeger.moveTo(250, 365);
