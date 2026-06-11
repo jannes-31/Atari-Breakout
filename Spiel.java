@@ -42,18 +42,13 @@ class Spiel
         double startX = (600 - (spalten * bBreite + (spalten - 1) * abstandX)) / 2.0;
         double startY = 45;
 
-        Color[] reihenFarben = {Color.red, Color.orange, Color.yellow};
-        int[] reihenPunkte = {3, 2, 1};
-
         bloeckeArray = new bloecke[3][spalten];
-        for (int reihe = 0; reihe < 3; reihe++)
+        for (int spalte = 0; spalte < spalten; spalte++)
         {
-            double y = startY + reihe * (bHoehe + abstandY);
-            for (int spalte = 0; spalte < spalten; spalte++)
-            {
-                double x = startX + spalte * (bBreite + abstandX);
-                bloeckeArray[reihe][spalte] = new bloecke(x, y, bBreite, bHoehe, reihenFarben[reihe], reihenPunkte[reihe]);
-            }
+            double x = startX + spalte * (bBreite + abstandX);
+            bloeckeArray[0][spalte] = new bloecke(x, startY,                    bBreite, bHoehe, Color.red,    3);
+            bloeckeArray[1][spalte] = new bloecke(x, startY + bHoehe + abstandY, bBreite, bHoehe, Color.orange, 2);
+            bloeckeArray[2][spalte] = new bloecke(x, startY + 2*(bHoehe + abstandY), bBreite, bHoehe, Color.yellow, 1);
         }
 
         boolean spielLaeuft = true;
